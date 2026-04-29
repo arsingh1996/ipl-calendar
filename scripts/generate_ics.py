@@ -26,8 +26,14 @@ for m in matches:
         f"DTSTAMP:{start.strftime('%Y%m%dT%H%M%SZ')}",
         f"DTSTART:{start.strftime('%Y%m%dT%H%M%SZ')}",
         f"DTEND:{end.strftime('%Y%m%dT%H%M%SZ')}",
-        f"SUMMARY:{m['home']} vs {m['away']}",
-        f"DESCRIPTION:Venue: {m['venue']}",
+        f"SUMMARY:IPL {m['match']} • {m['home']} vs {m['away']}",
+        f"LOCATION:{m['venue']}",
+        f"DESCRIPTION:IPL 2026 Match {m['match']}\\n{m['home']} vs {m['away']}\\nVenue: {m['venue']}",
+        "BEGIN:VALARM",
+        "TRIGGER:-PT30M",
+        "ACTION:DISPLAY",
+        "DESCRIPTION:Match starting in 30 minutes",
+        "END:VALARM",
         "END:VEVENT"
     ])
 
