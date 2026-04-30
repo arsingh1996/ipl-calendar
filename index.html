@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL 2026 Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1e1e1e;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --accent: #f0f0f0;
+    --team-color: #f0f0f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ── ONBOARDING OVERLAY ── */
+  #onboarding {
+    position: fixed; inset: 0; z-index: 100;
+    background: #0a0a0a;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+    transition: opacity 0.4s ease;
+  }
+  #onboarding.hidden { opacity: 0; pointer-events: none; }
+  .ob-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-align: center;
+    color: #f0f0f0;
+    margin-bottom: 0.5rem;
+  }
+  .ob-sub {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 3rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ob-prompt {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 560px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 480px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+  .team-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .team-btn:hover { border-color: var(--border2); color: var(--text); transform: translateY(-2px); }
+  .team-btn.selected { border-color: var(--team-color); color: var(--team-color); background: rgba(255,255,255,0.04); }
+  .team-btn .team-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .ob-skip {
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    margin-top: 0.5rem;
+  }
+  .ob-skip:hover { color: var(--text); }
+  .ob-continue {
+    background: var(--text);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+    margin-top: 1rem;
+    display: none;
+  }
+  .ob-continue.visible { display: inline-block; }
+  .ob-continue:hover { opacity: 0.85; }
+
+  /* ── MAIN APP ── */
+  #app { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+  #app.visible { opacity: 1; pointer-events: all; }
+
+  header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--text);
+  }
+  .logo span { color: var(--team-color); transition: color 0.3s; }
+  .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .team-tag {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .team-tag strong { color: var(--team-color); font-weight: 500; transition: color 0.3s; }
+  .change-team-btn {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: var(--muted); cursor: pointer; letter-spacing: 0.04em;
+    text-transform: uppercase; transition: all 0.15s;
+  }
+  .change-team-btn:hover { border-color: var(--border2); color: var(--text); }
+  .sub-btn {
+    background: var(--team-color); color: #0a0a0a;
+    border: none; border-radius: 8px; padding: 7px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase;
+    transition: opacity 0.15s; text-decoration: none; display: inline-block;
+  }
+  .sub-btn:hover { opacity: 0.8; }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+    gap: 0;
+  }
+  .stat-item { padding: 0 1rem 0 0; }
+  .stat-item + .stat-item { border-left: 1px solid var(--border); padding-left: 1rem; }
+  .stat-n { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.04em; line-height: 1; color: var(--text); }
+  .stat-n.accent { color: var(--team-color); transition: color 0.3s; }
+  .stat-l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  .filters {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .filter-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+  select {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--text); cursor: pointer; outline: none;
+    transition: border-color 0.15s;
+    appearance: none; padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  select:hover, select:focus { border-color: var(--border2); }
+  .filter-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.04em;
+  }
+  .filter-chip:hover { border-color: var(--border2); color: var(--text); }
+  .filter-chip.active { border-color: var(--team-color); color: var(--team-color); background: rgba(255,255,255,0.04); }
+
+  .schedule { padding: 1.5rem 2rem 4rem; }
+  .month-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; letter-spacing: 0.12em;
+    color: var(--muted); text-transform: uppercase;
+    padding: 1.25rem 0 0.75rem;
+  }
+  .match-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center; gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .match-row::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: transparent;
+    transition: background 0.3s;
+  }
+  .match-row.my-team::before { background: var(--team-color); }
+  .match-row:hover { border-color: var(--border2); background: var(--surface2); }
+  .match-num { font-size: 12px; color: var(--muted); text-align: center; font-weight: 400; }
+  .match-body {}
+  .match-teams { font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: 0.02em; }
+  .match-teams .highlight { color: var(--team-color); transition: color 0.3s; }
+  .match-detail { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .match-right { text-align: right; }
+  .match-time { font-size: 13px; font-weight: 500; color: var(--text); }
+  .match-slot {
+    display: inline-block; font-size: 10px; padding: 2px 8px;
+    border-radius: 20px; margin-top: 4px; letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .slot-day { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .slot-night { background: rgba(255,255,255,0.03); color: #555; border: 1px solid #2a2a2a; }
+  .no-results { padding: 4rem 2rem; text-align: center; color: var(--muted); font-size: 14px; }
+
+  /* ── MINI TEAM PICKER (change team) ── */
+  #team-picker-overlay {
+    position: fixed; inset: 0; z-index: 99;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #team-picker-overlay.open { opacity: 1; pointer-events: all; }
+  .team-picker-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 480px; width: 100%;
+  }
+  .picker-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px; letter-spacing: 0.06em;
+    color: var(--text); margin-bottom: 1.25rem;
+  }
+  .picker-close {
+    float: right; background: none; border: none;
+    color: var(--muted); font-size: 20px; cursor: pointer;
+    line-height: 1; font-family: inherit;
+  }
+  .picker-close:hover { color: var(--text); }
+  .picker-none {
+    margin-top: 1rem; font-size: 12px; color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .picker-none:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-title">IPL 2026</div>
+  <div class="ob-sub">Full season schedule · 70 matches</div>
+  <div class="ob-prompt">Pick your team</div>
+  <div class="team-grid" id="ob-team-grid"></div>
+  <button class="ob-continue" id="ob-continue" onclick="confirmTeam()">Let's go</button>
+  <button class="ob-skip" onclick="skipTeam()">Skip — show all matches</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="logo">IPL <span id="logo-year">2026</span></div>
+    <div class="header-right">
+      <div class="team-tag" id="team-tag" style="display:none">
+        Following <strong id="team-tag-name">—</strong>
+      </div>
+      <button class="change-team-btn" onclick="openTeamPicker()">Change team</button>
+      <a class="sub-btn" id="sub-link" href="#" target="_blank">Subscribe calendar</a>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-n" id="st-shown">70</div><div class="stat-l">Shown</div></div>
+    <div class="stat-item"><div class="stat-n accent" id="st-team">—</div><div class="stat-l" id="st-team-label">My team</div></div>
+    <div class="stat-item"><div class="stat-n" id="st-venues">10</div><div class="stat-l">Venues</div></div>
+    <div class="stat-item"><div class="stat-n" id="st-days">—</div><div class="stat-l">Days left</div></div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Filter</span>
+    <select id="f-team" onchange="render()">
+      <option value="">All teams</option>
+      <option>RCB</option><option>MI</option><option>CSK</option>
+      <option>KKR</option><option>SRH</option><option>RR</option>
+      <option>GT</option><option>LSG</option><option>DC</option><option>PBKS</option>
+    </select>
+    <select id="f-venue" onchange="render()"><option value="">All venues</option></select>
+    <button class="filter-chip" id="chip-day" onclick="toggleChip('day')">Day matches</button>
+    <button class="filter-chip" id="chip-night" onclick="toggleChip('night')">Night matches</button>
+    <button class="filter-chip" id="chip-myteam" onclick="toggleChip('myteam')">My team only</button>
+  </div>
+
+  <div class="schedule" id="schedule"></div>
+</div>
+
+<!-- CHANGE TEAM OVERLAY -->
+<div id="team-picker-overlay" onclick="closeTeamPicker(event)">
+  <div class="team-picker-box">
+    <button class="picker-close" onclick="closeTeamPickerDirect()">&#x2715;</button>
+    <div class="picker-title">Change your team</div>
+    <div class="team-grid" id="picker-team-grid"></div>
+    <button class="picker-none" onclick="setTeam(null); closeTeamPickerDirect()">No team — show all</button>
+  </div>
+</div>
+
+<script>
+const MATCHES = [
+  {m:1,d:"2026-03-28",t:"19:30",h:"RCB",a:"SRH",v:"Bengaluru"},
+  {m:2,d:"2026-03-29",t:"19:30",h:"MI",a:"KKR",v:"Mumbai"},
+  {m:3,d:"2026-03-30",t:"19:30",h:"RR",a:"CSK",v:"Guwahati"},
+  {m:4,d:"2026-03-31",t:"19:30",h:"PBKS",a:"GT",v:"New Chandigarh"},
+  {m:5,d:"2026-04-01",t:"19:30",h:"LSG",a:"DC",v:"Lucknow"},
+  {m:6,d:"2026-04-02",t:"19:30",h:"KKR",a:"SRH",v:"Kolkata"},
+  {m:7,d:"2026-04-03",t:"19:30",h:"CSK",a:"PBKS",v:"Chennai"},
+  {m:8,d:"2026-04-04",t:"15:30",h:"DC",a:"MI",v:"Delhi"},
+  {m:9,d:"2026-04-04",t:"19:30",h:"GT",a:"RR",v:"Ahmedabad"},
+  {m:10,d:"2026-04-05",t:"15:30",h:"SRH",a:"LSG",v:"Hyderabad"},
+  {m:11,d:"2026-04-05",t:"19:30",h:"RCB",a:"CSK",v:"Bengaluru"},
+  {m:12,d:"2026-04-06",t:"19:30",h:"KKR",a:"PBKS",v:"Kolkata"},
+  {m:13,d:"2026-04-07",t:"19:30",h:"RR",a:"MI",v:"Guwahati"},
+  {m:14,d:"2026-04-08",t:"19:30",h:"DC",a:"GT",v:"Delhi"},
+  {m:15,d:"2026-04-09",t:"19:30",h:"KKR",a:"LSG",v:"Kolkata"},
+  {m:16,d:"2026-04-10",t:"19:30",h:"RR",a:"RCB",v:"Guwahati"},
+  {m:17,d:"2026-04-11",t:"15:30",h:"PBKS",a:"SRH",v:"New Chandigarh"},
+  {m:18,d:"2026-04-11",t:"19:30",h:"CSK",a:"DC",v:"Chennai"},
+  {m:19,d:"2026-04-12",t:"15:30",h:"LSG",a:"GT",v:"Lucknow"},
+  {m:20,d:"2026-04-12",t:"19:30",h:"MI",a:"RCB",v:"Mumbai"},
+  {m:21,d:"2026-04-13",t:"19:30",h:"SRH",a:"RR",v:"Hyderabad"},
+  {m:22,d:"2026-04-14",t:"19:30",h:"CSK",a:"KKR",v:"Chennai"},
+  {m:23,d:"2026-04-15",t:"19:30",h:"RCB",a:"LSG",v:"Bengaluru"},
+  {m:24,d:"2026-04-16",t:"19:30",h:"MI",a:"PBKS",v:"Mumbai"},
+  {m:25,d:"2026-04-17",t:"19:30",h:"GT",a:"KKR",v:"Ahmedabad"},
+  {m:26,d:"2026-04-18",t:"15:30",h:"RCB",a:"DC",v:"Bengaluru"},
+  {m:27,d:"2026-04-18",t:"19:30",h:"SRH",a:"CSK",v:"Hyderabad"},
+  {m:28,d:"2026-04-19",t:"15:30",h:"KKR",a:"RR",v:"Kolkata"},
+  {m:29,d:"2026-04-19",t:"19:30",h:"PBKS",a:"LSG",v:"New Chandigarh"},
+  {m:30,d:"2026-04-20",t:"19:30",h:"GT",a:"MI",v:"Ahmedabad"},
+  {m:31,d:"2026-04-21",t:"19:30",h:"SRH",a:"DC",v:"Hyderabad"},
+  {m:32,d:"2026-04-22",t:"19:30",h:"LSG",a:"RR",v:"Lucknow"},
+  {m:33,d:"2026-04-23",t:"19:30",h:"MI",a:"CSK",v:"Mumbai"},
+  {m:34,d:"2026-04-24",t:"19:30",h:"RCB",a:"GT",v:"Bengaluru"},
+  {m:35,d:"2026-04-25",t:"15:30",h:"DC",a:"PBKS",v:"Delhi"},
+  {m:36,d:"2026-04-25",t:"19:30",h:"RR",a:"SRH",v:"Jaipur"},
+  {m:37,d:"2026-04-26",t:"15:30",h:"GT",a:"CSK",v:"Ahmedabad"},
+  {m:38,d:"2026-04-26",t:"19:30",h:"LSG",a:"KKR",v:"Lucknow"},
+  {m:39,d:"2026-04-27",t:"19:30",h:"DC",a:"RCB",v:"Delhi"},
+  {m:40,d:"2026-04-28",t:"19:30",h:"PBKS",a:"RR",v:"New Chandigarh"},
+  {m:41,d:"2026-04-29",t:"19:30",h:"MI",a:"SRH",v:"Mumbai"},
+  {m:42,d:"2026-04-30",t:"19:30",h:"GT",a:"RCB",v:"Ahmedabad"},
+  {m:43,d:"2026-05-01",t:"19:30",h:"RR",a:"DC",v:"Jaipur"},
+  {m:44,d:"2026-05-02",t:"19:30",h:"CSK",a:"MI",v:"Chennai"},
+  {m:45,d:"2026-05-03",t:"15:30",h:"SRH",a:"KKR",v:"Hyderabad"},
+  {m:46,d:"2026-05-03",t:"19:30",h:"GT",a:"PBKS",v:"Ahmedabad"},
+  {m:47,d:"2026-05-04",t:"19:30",h:"MI",a:"LSG",v:"Mumbai"},
+  {m:48,d:"2026-05-05",t:"19:30",h:"DC",a:"CSK",v:"Delhi"},
+  {m:49,d:"2026-05-06",t:"19:30",h:"SRH",a:"PBKS",v:"Hyderabad"},
+  {m:50,d:"2026-05-07",t:"19:30",h:"LSG",a:"RCB",v:"Lucknow"},
+  {m:51,d:"2026-05-08",t:"19:30",h:"DC",a:"KKR",v:"Delhi"},
+  {m:52,d:"2026-05-09",t:"19:30",h:"RR",a:"GT",v:"Jaipur"},
+  {m:53,d:"2026-05-10",t:"15:30",h:"CSK",a:"LSG",v:"Chennai"},
+  {m:54,d:"2026-05-10",t:"19:30",h:"RCB",a:"MI",v:"Bengaluru"},
+  {m:55,d:"2026-05-11",t:"19:30",h:"PBKS",a:"DC",v:"Dharamshala"},
+  {m:56,d:"2026-05-12",t:"19:30",h:"GT",a:"SRH",v:"Ahmedabad"},
+  {m:57,d:"2026-05-13",t:"19:30",h:"RCB",a:"KKR",v:"Bengaluru"},
+  {m:58,d:"2026-05-14",t:"19:30",h:"PBKS",a:"MI",v:"Dharamshala"},
+  {m:59,d:"2026-05-15",t:"19:30",h:"LSG",a:"CSK",v:"Lucknow"},
+  {m:60,d:"2026-05-16",t:"19:30",h:"KKR",a:"GT",v:"Kolkata"},
+  {m:61,d:"2026-05-17",t:"15:30",h:"PBKS",a:"RCB",v:"Dharamshala"},
+  {m:62,d:"2026-05-17",t:"19:30",h:"DC",a:"RR",v:"Delhi"},
+  {m:63,d:"2026-05-18",t:"19:30",h:"CSK",a:"SRH",v:"Chennai"},
+  {m:64,d:"2026-05-19",t:"19:30",h:"RR",a:"LSG",v:"Jaipur"},
+  {m:65,d:"2026-05-20",t:"19:30",h:"KKR",a:"MI",v:"Kolkata"},
+  {m:66,d:"2026-05-21",t:"19:30",h:"CSK",a:"GT",v:"Chennai"},
+  {m:67,d:"2026-05-22",t:"19:30",h:"SRH",a:"RCB",v:"Hyderabad"},
+  {m:68,d:"2026-05-23",t:"19:30",h:"LSG",a:"PBKS",v:"Lucknow"},
+  {m:69,d:"2026-05-24",t:"15:30",h:"MI",a:"RR",v:"Mumbai"},
+  {m:70,d:"2026-05-24",t:"19:30",h:"KKR",a:"DC",v:"Kolkata"}
+];
+
+const TEAMS = [
+  {code:"RCB", name:"Royal Challengers", icon:"🔴"},
+  {code:"MI",  name:"Mumbai Indians",    icon:"🔵"},
+  {code:"CSK", name:"Super Kings",       icon:"🟡"},
+  {code:"KKR", name:"Knight Riders",     icon:"🟣"},
+  {code:"SRH", name:"Sunrisers",         icon:"🟠"},
+  {code:"RR",  name:"Rajasthan Royals",  icon:"💗"},
+  {code:"GT",  name:"Gujarat Titans",    icon:"🔷"},
+  {code:"LSG", name:"Super Giants",      icon:"🟢"},
+  {code:"DC",  name:"Delhi Capitals",    icon:"🩵"},
+  {code:"PBKS",name:"Punjab Kings",      icon:"❤️"},
+];
+
+const TEAM_COLORS = {
+  RCB:"#e8262c", MI:"#004ba0", CSK:"#f5c400", KKR:"#3a1a5f",
+  SRH:"#f7611e", RR:"#e91e8c", GT:"#1c4a9f", LSG:"#a0c645",
+  DC:"#0078bc", PBKS:"#c8102e"
+};
+
+const BASE_URL = "https://raw.githubusercontent.com/arsingh1996/ipl-calendar/main/dist/";
+
+let myTeam = localStorage.getItem('ipl_team') || null;
+let chips = { day: false, night: false, myteam: false };
+
+function setTeamColor(team) {
+  const color = team ? TEAM_COLORS[team] : '#f0f0f0';
+  document.documentElement.style.setProperty('--team-color', color);
+}
+
+function buildTeamGrid(containerId, onSelect) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = '';
+  TEAMS.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'team-btn' + (myTeam === t.code ? ' selected' : '');
+    btn.innerHTML = `<span class="team-icon">${t.icon}</span>${t.code}`;
+    btn.onclick = () => onSelect(t.code, containerId);
+    grid.appendChild(btn);
+  });
+}
+
+function onObSelect(code, gridId) {
+  myTeam = code;
+  document.querySelectorAll(`#${gridId} .team-btn`).forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('ob-continue').classList.add('visible');
+  setTeamColor(code);
+}
+
+function confirmTeam() {
+  if (!myTeam) return;
+  localStorage.setItem('ipl_team', myTeam);
+  launchApp();
+}
+
+function skipTeam() {
+  myTeam = null;
+  localStorage.removeItem('ipl_team');
+  launchApp();
+}
+
+function launchApp() {
+  document.getElementById('onboarding').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+  }, 400);
+  initApp();
+}
+
+function initApp() {
+  setTeamColor(myTeam);
+
+  const venues = [...new Set(MATCHES.map(m => m.v))].sort();
+  const vs = document.getElementById('f-venue');
+  venues.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; vs.appendChild(o); });
+
+  const tag = document.getElementById('team-tag');
+  if (myTeam) {
+    tag.style.display = 'flex';
+    document.getElementById('team-tag-name').textContent = myTeam;
+  }
+
+  const subLink = document.getElementById('sub-link');
+  if (myTeam) {
+    subLink.href = BASE_URL + myTeam.toLowerCase() + '.ics';
+    subLink.textContent = `Subscribe · ${myTeam}`;
+  } else {
+    subLink.href = BASE_URL + 'ipl.ics';
+    subLink.textContent = 'Subscribe · All matches';
+  }
+
+  const teamCount = myTeam ? MATCHES.filter(m => m.h === myTeam || m.a === myTeam).length : 0;
+  document.getElementById('st-team').textContent = myTeam ? teamCount : '—';
+  document.getElementById('st-team-label').textContent = myTeam ? myTeam + ' matches' : 'My team';
+  document.getElementById('st-venues').textContent = venues.length;
+
+  const today = new Date();
+  const last = new Date('2026-05-24');
+  const days = Math.max(0, Math.ceil((last - today) / 86400000));
+  document.getElementById('st-days').textContent = days;
+
+  buildTeamGrid('picker-team-grid', onPickerSelect);
+  render();
+}
+
+function onPickerSelect(code, gridId) {
+  myTeam = code;
+  document.querySelectorAll(`#${gridId} .team-btn`).forEach(b => b.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  setTeam(code);
+  closeTeamPickerDirect();
+}
+
+function setTeam(code) {
+  myTeam = code;
+  if (code) localStorage.setItem('ipl_team', code);
+  else localStorage.removeItem('ipl_team');
+  setTeamColor(code);
+
+  const tag = document.getElementById('team-tag');
+  if (code) { tag.style.display = 'flex'; document.getElementById('team-tag-name').textContent = code; }
+  else { tag.style.display = 'none'; }
+
+  const subLink = document.getElementById('sub-link');
+  if (code) { subLink.href = BASE_URL + code.toLowerCase() + '.ics'; subLink.textContent = `Subscribe · ${code}`; }
+  else { subLink.href = BASE_URL + 'ipl.ics'; subLink.textContent = 'Subscribe · All matches'; }
+
+  const teamCount = code ? MATCHES.filter(m => m.h === code || m.a === code).length : 0;
+  document.getElementById('st-team').textContent = code ? teamCount : '—';
+  document.getElementById('st-team-label').textContent = code ? code + ' matches' : 'My team';
+  render();
+}
+
+function toggleChip(key) {
+  chips[key] = !chips[key];
+  document.getElementById('chip-' + key).classList.toggle('active', chips[key]);
+  if (key === 'myteam' && chips[key] && myTeam) {
+    document.getElementById('f-team').value = '';
+  }
+  render();
+}
+
+function fmtDate(d) {
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
+}
+function fmtTime(t) {
+  const [h] = t.split(':'); const hr = parseInt(h);
+  return `${hr > 12 ? hr - 12 : hr}:${t.split(':')[1]} ${hr >= 12 ? 'PM' : 'AM'}`;
+}
+
+function render() {
+  const fTeam = document.getElementById('f-team') ? document.getElementById('f-team').value : '';
+  const fVenue = document.getElementById('f-venue') ? document.getElementById('f-venue').value : '';
+
+  let list = MATCHES.filter(m => {
+    if (fTeam && m.h !== fTeam && m.a !== fTeam) return false;
+    if (fVenue && m.v !== fVenue) return false;
+    if (chips.day && m.t !== '15:30') return false;
+    if (chips.night && m.t !== '19:30') return false;
+    if (chips.myteam && myTeam && m.h !== myTeam && m.a !== myTeam) return false;
+    return true;
+  });
+
+  document.getElementById('st-shown').textContent = list.length;
+
+  const sched = document.getElementById('schedule');
+  if (!list.length) { sched.innerHTML = '<div class="no-results">No matches for this filter.</div>'; return; }
+
+  let html = ''; let lastMonth = '';
+  list.forEach(m => {
+    const isMyTeam = myTeam && (m.h === myTeam || m.a === myTeam);
+    const month = new Date(m.d + 'T00:00:00').toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+    if (month !== lastMonth) { html += `<div class="month-label">${month}</div>`; lastMonth = month; }
+    const ht = (myTeam && m.h === myTeam) ? `<span class="highlight">${m.h}</span>` : m.h;
+    const at = (myTeam && m.a === myTeam) ? `<span class="highlight">${m.a}</span>` : m.a;
+    const slot = m.t === '15:30'
+      ? `<span class="match-slot slot-day">Day</span>`
+      : `<span class="match-slot slot-night">Night</span>`;
+    html += `<div class="match-row${isMyTeam ? ' my-team' : ''}">
+      <div class="match-num">#${m.m}</div>
+      <div class="match-body">
+        <div class="match-teams">${ht} vs ${at}</div>
+        <div class="match-detail">${m.v} &nbsp;·&nbsp; ${fmtDate(m.d)}</div>
+      </div>
+      <div class="match-right">
+        <div class="match-time">${fmtTime(m.t)}</div>
+        ${slot}
+      </div>
+    </div>`;
+  });
+  sched.innerHTML = html;
+}
+
+function openTeamPicker() {
+  buildTeamGrid('picker-team-grid', onPickerSelect);
+  document.getElementById('team-picker-overlay').classList.add('open');
+}
+function closeTeamPicker(e) {
+  if (e.target === document.getElementById('team-picker-overlay')) closeTeamPickerDirect();
+}
+function closeTeamPickerDirect() {
+  document.getElementById('team-picker-overlay').classList.remove('open');
+}
+
+// Init
+buildTeamGrid('ob-team-grid', onObSelect);
+if (myTeam) {
+  setTeamColor(myTeam);
+  document.getElementById('ob-continue').classList.add('visible');
+}
+
+const saved = localStorage.getItem('ipl_team');
+if (saved) {
+  myTeam = saved;
+  launchApp();
+} else {
+  document.getElementById('onboarding').style.display = 'flex';
+}
+</script>
+</body>
+</html>
