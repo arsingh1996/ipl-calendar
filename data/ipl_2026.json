@@ -68,5 +68,6 @@
     { "match": 67, "date": "2026-05-22", "time": "19:30", "home": "SRH", "away": "RCB", "venue": "Hyderabad" },
     { "match": 68, "date": "2026-05-23", "time": "19:30", "home": "LSG", "away": "PBKS", "venue": "Lucknow" },
     { "match": 69, "date": "2026-05-24", "time": "15:30", "home": "MI", "away": "RR", "venue": "Mumbai" },
-    { "match": 70, "date": "2026-05-24", "time": "19:30", "home": "KKR", "away": "DC", "venue": "Kolkata" }
+    { "match": 70, "date": "2026-05-24", "time": "19:30", "home": "KKR", "away": "DC", "venue": "Kolkata" },
+    { "match": 71, "date": "2026-05-25", "time": "19:30", "home": "Sonu", "away": "Pinky", "venue": "Dallas" }
   ]
