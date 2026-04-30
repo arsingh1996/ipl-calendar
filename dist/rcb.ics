@@ -3,7 +3,7 @@ VERSION:2.0
 PRODID:-//IPL Calendar//EN
 X-WR-CALNAME:RCB IPL 2026
 X-WR-TIMEZONE:Asia/Kolkata
-X-WR-CALDESC:Royal Challengers Bengaluru - IPL 2026 matches
+X-WR-CALDESC:Royal Challengers Bengaluru - IPL {YEAR} matches
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:1@ipl2026
