@@ -1,6 +1,11 @@
 import json
 from datetime import datetime, timedelta
 
+# ── Config ────────────────────────────────────────────────
+YEAR        = 2026
+INPUT_FILE  = f"data/ipl_{YEAR}.json"
+# ─────────────────────────────────────────────────────────
+
 
 def ist_to_utc(date_str, time_str):
     dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
@@ -23,13 +28,13 @@ def generate_ics(matches, filename, cal_name, cal_desc):
         end = start + timedelta(hours=3)
         lines.extend([
             "BEGIN:VEVENT",
-            f"UID:{m['match']}@ipl2026",
+            f"UID:{m['match']}@ipl{YEAR}",
             f"DTSTAMP:{start.strftime('%Y%m%dT%H%M%SZ')}",
             f"DTSTART:{start.strftime('%Y%m%dT%H%M%SZ')}",
             f"DTEND:{end.strftime('%Y%m%dT%H%M%SZ')}",
             f"SUMMARY:IPL {m['match']} \u2022 {m['home']} vs {m['away']}",
             f"LOCATION:{m['venue']}",
-            f"DESCRIPTION:IPL 2026 Match {m['match']}\\n{m['home']} vs {m['away']}\\nVenue: {m['venue']}",
+            f"DESCRIPTION:IPL {YEAR} Match {m['match']}\\n{m['home']} vs {m['away']}\\nVenue: {m['venue']}",
             "BEGIN:VALARM",
             "TRIGGER:-PT30M",
             "ACTION:DISPLAY",
@@ -51,24 +56,24 @@ def generate_ics(matches, filename, cal_name, cal_desc):
     print(f"✅ Generated dist/{filename} ({len(matches)} matches)")
 
 
-with open("data/ipl_2026.json") as f:
+with open(INPUT_FILE) as f:
     matches = json.load(f)
 
 # Full calendar
-generate_ics(matches, "ipl.ics", "IPL 2026", "Full IPL 2026 schedule with all 70 matches")
+generate_ics(matches, "ipl.ics", f"IPL {YEAR}", f"Full IPL {YEAR} schedule with all {len(matches)} matches")
 
 # Team calendars
 teams = {
-    "RCB":  ("rcb.ics",  "RCB IPL 2026",  "Royal Challengers Bengaluru - IPL 2026 matches"),
-    "MI":   ("mi.ics",   "MI IPL 2026",   "Mumbai Indians - IPL 2026 matches"),
-    "CSK":  ("csk.ics",  "CSK IPL 2026",  "Chennai Super Kings - IPL 2026 matches"),
-    "KKR":  ("kkr.ics",  "KKR IPL 2026",  "Kolkata Knight Riders - IPL 2026 matches"),
-    "SRH":  ("srh.ics",  "SRH IPL 2026",  "Sunrisers Hyderabad - IPL 2026 matches"),
-    "RR":   ("rr.ics",   "RR IPL 2026",   "Rajasthan Royals - IPL 2026 matches"),
-    "GT":   ("gt.ics",   "GT IPL 2026",   "Gujarat Titans - IPL 2026 matches"),
-    "LSG":  ("lsg.ics",  "LSG IPL 2026",  "Lucknow Super Giants - IPL 2026 matches"),
-    "DC":   ("dc.ics",   "DC IPL 2026",   "Delhi Capitals - IPL 2026 matches"),
-    "PBKS": ("pbks.ics", "PBKS IPL 2026", "Punjab Kings - IPL 2026 matches"),
+    "RCB":  ("rcb.ics",  f"RCB IPL {YEAR}",  "Royal Challengers Bengaluru - IPL {YEAR} matches"),
+    "MI":   ("mi.ics",   f"MI IPL {YEAR}",   "Mumbai Indians - IPL {YEAR} matches"),
+    "CSK":  ("csk.ics",  f"CSK IPL {YEAR}",  "Chennai Super Kings - IPL {YEAR} matches"),
+    "KKR":  ("kkr.ics",  f"KKR IPL {YEAR}",  "Kolkata Knight Riders - IPL {YEAR} matches"),
+    "SRH":  ("srh.ics",  f"SRH IPL {YEAR}",  "Sunrisers Hyderabad - IPL {YEAR} matches"),
+    "RR":   ("rr.ics",   f"RR IPL {YEAR}",   "Rajasthan Royals - IPL {YEAR} matches"),
+    "GT":   ("gt.ics",   f"GT IPL {YEAR}",   "Gujarat Titans - IPL {YEAR} matches"),
+    "LSG":  ("lsg.ics",  f"LSG IPL {YEAR}",  "Lucknow Super Giants - IPL {YEAR} matches"),
+    "DC":   ("dc.ics",   f"DC IPL {YEAR}",   "Delhi Capitals - IPL {YEAR} matches"),
+    "PBKS": ("pbks.ics", f"PBKS IPL {YEAR}", "Punjab Kings - IPL {YEAR} matches"),
 }
 
 for team, (filename, cal_name, cal_desc) in teams.items():
