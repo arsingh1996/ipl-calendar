@@ -68,5 +68,9 @@
     { "match": 67, "date": "2026-05-22", "time": "19:30", "home": "SRH", "away": "RCB", "venue": "Hyderabad" },
     { "match": 68, "date": "2026-05-23", "time": "19:30", "home": "LSG", "away": "PBKS", "venue": "Lucknow" },
     { "match": 69, "date": "2026-05-24", "time": "15:30", "home": "MI", "away": "RR", "venue": "Mumbai" },
-    { "match": 70, "date": "2026-05-24", "time": "19:30", "home": "KKR", "away": "DC", "venue": "Kolkata" }
-  ]
+    { "match": 70, "date": "2026-05-24", "time": "19:30", "home": "KKR", "away": "DC", "venue": "Kolkata" },
+    { "match": "Qualifier 1", "date": "2026-05-26", "time": "19:30", "home": "TBD", "away": "TBD", "venue": "TBD" },
+    { "match": "Eliminator", "date": "2026-05-27", "time": "19:30", "home": "TBD", "away": "TBD", "venue": "TBD" },
+    { "match": "Qualifier 2", "date": "2026-05-29", "time": "19:30", "home": "TBD", "away": "TBD", "venue": "TBD" },
+    { "match": "Final", "date": "2026-05-31", "time": "19:30", "home": "TBD", "away": "TBD", "venue": "TBD" }
+]
