@@ -462,6 +462,22 @@ const TEAM_COLORS = {
   DC:"#0078bc", PBKS:"#c8102e"
 };
 
+const STADIUMS = {
+  "Bengaluru":      "M. Chinnaswamy Stadium",
+  "Mumbai":         "Wankhede Stadium",
+  "Guwahati":       "Barsapara Cricket Stadium",
+  "New Chandigarh": "Maharaja Yadavindra Singh Stadium",
+  "Lucknow":        "BRSABV Ekana Cricket Stadium",
+  "Kolkata":        "Eden Gardens",
+  "Chennai":        "M. A. Chidambaram Stadium",
+  "Delhi":          "Arun Jaitley Stadium",
+  "Ahmedabad":      "Narendra Modi Stadium",
+  "Hyderabad":      "Rajiv Gandhi International Stadium",
+  "Jaipur":         "Sawai Mansingh Stadium",
+  "Dharamshala":    "HPCA Cricket Stadium",
+  "TBD":            "TBD",
+};
+
 const BASE_URL = "https://raw.githubusercontent.com/arsingh1996/ipl-calendar/main/dist/";
 
 const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -669,7 +685,7 @@ function render() {
       ${matchLabel}
       <div class="match-body">
         <div class="match-teams">${teamsHtml}</div>
-        <div class="match-detail">${m.v} &nbsp;·&nbsp; ${fmtDate(m.d)}</div>
+        <div class="match-detail">${STADIUMS[m.v] || m.v} &nbsp;·&nbsp; ${m.v} &nbsp;·&nbsp; ${fmtDate(m.d)}</div>
       </div>
       <div class="match-right">
         ${timeHtml}
