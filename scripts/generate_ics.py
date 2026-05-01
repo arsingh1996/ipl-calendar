@@ -1,19 +1,35 @@
 import json
 from datetime import datetime, timedelta
- 
+
 # ── Config ────────────────────────────────────────────────
 YEAR       = 2026
 INPUT_FILE = f"data/ipl_{YEAR}.json"
 # ─────────────────────────────────────────────────────────
- 
+
 PLAYOFF_MATCHES = {"Qualifier 1", "Eliminator", "Qualifier 2", "Final"}
- 
- 
+
+STADIUMS = {
+    "Bengaluru":      "M. Chinnaswamy Stadium",
+    "Mumbai":         "Wankhede Stadium",
+    "Guwahati":       "Barsapara Cricket Stadium",
+    "New Chandigarh": "Maharaja Yadavindra Singh Stadium",
+    "Lucknow":        "BRSABV Ekana Cricket Stadium",
+    "Kolkata":        "Eden Gardens",
+    "Chennai":        "M. A. Chidambaram Stadium",
+    "Delhi":          "Arun Jaitley Stadium",
+    "Ahmedabad":      "Narendra Modi Stadium",
+    "Hyderabad":      "Rajiv Gandhi International Stadium",
+    "Jaipur":         "Sawai Mansingh Stadium",
+    "Dharamshala":    "HPCA Cricket Stadium",
+    "TBD":            "TBD",
+}
+
+
 def ist_to_utc(date_str, time_str):
     dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
     return dt - timedelta(hours=5, minutes=30)
- 
- 
+
+
 def generate_ics(matches, filename, cal_name, cal_desc):
     lines = [
         "BEGIN:VCALENDAR",
@@ -24,21 +40,28 @@ def generate_ics(matches, filename, cal_name, cal_desc):
         f"X-WR-CALDESC:{cal_desc}",
         "CALSCALE:GREGORIAN"
     ]
- 
+
     for m in matches:
         start = ist_to_utc(m["date"], m["time"])
         end = start + timedelta(hours=3)
         is_playoff = m["match"] in PLAYOFF_MATCHES
- 
+        stadium = STADIUMS.get(m["venue"], m["venue"])
+        location = f"{stadium}, {m['venue']}" if m["venue"] != "TBD" else "TBD"
+
         if is_playoff:
             summary = f"IPL {YEAR} {m['match']}"
             if m["home"] != "TBD":
                 summary += f" \u2022 {m['home']} vs {m['away']}"
-            desc = f"IPL {YEAR} {m['match']}\\nVenue: {m['venue']}"
+            desc = f"IPL {YEAR} {m['match']}\\nVenue: {stadium}\\n{m['venue']}"
         else:
             summary = f"IPL {m['match']} \u2022 {m['home']} vs {m['away']}"
-            desc = f"IPL {YEAR} Match {m['match']}\\n{m['home']} vs {m['away']}\\nVenue: {m['venue']}"
- 
+            desc = (
+                f"IPL {YEAR} Match {m['match']}\\n"
+                f"{m['home']} vs {m['away']}\\n"
+                f"Venue: {stadium}\\n"
+                f"{m['venue']}"
+            )
+
         lines.extend([
             "BEGIN:VEVENT",
             f"UID:{str(m['match']).replace(' ', '-').lower()}@ipl{YEAR}",
@@ -46,7 +69,7 @@ def generate_ics(matches, filename, cal_name, cal_desc):
             f"DTSTART:{start.strftime('%Y%m%dT%H%M%SZ')}",
             f"DTEND:{end.strftime('%Y%m%dT%H%M%SZ')}",
             f"SUMMARY:{summary}",
-            f"LOCATION:{m['venue']}",
+            f"LOCATION:{location}",
             f"DESCRIPTION:{desc}",
             "BEGIN:VALARM",
             "TRIGGER:-PT30M",
@@ -60,24 +83,24 @@ def generate_ics(matches, filename, cal_name, cal_desc):
             "END:VALARM",
             "END:VEVENT"
         ])
- 
+
     lines.append("END:VCALENDAR")
- 
+
     with open(f"dist/{filename}", "w") as f:
         f.write("\n".join(lines))
- 
+
     print(f"✅ Generated dist/{filename} ({len(matches)} matches)")
- 
- 
+
+
 with open(INPUT_FILE) as f:
     all_matches = json.load(f)
- 
+
 league_matches = [m for m in all_matches if m["match"] not in PLAYOFF_MATCHES]
 playoff_matches = [m for m in all_matches if m["match"] in PLAYOFF_MATCHES]
- 
+
 # Full calendar (league + playoffs)
 generate_ics(all_matches, "ipl.ics", f"IPL {YEAR}", f"Full IPL {YEAR} schedule — {len(league_matches)} league matches + playoffs")
- 
+
 # Team calendars (league matches for that team + all playoffs)
 teams = {
     "RCB":  ("rcb.ics",  f"RCB IPL {YEAR}",  f"Royal Challengers Bengaluru — IPL {YEAR}"),
@@ -91,7 +114,7 @@ teams = {
     "DC":   ("dc.ics",   f"DC IPL {YEAR}",   f"Delhi Capitals — IPL {YEAR}"),
     "PBKS": ("pbks.ics", f"PBKS IPL {YEAR}", f"Punjab Kings — IPL {YEAR}"),
 }
- 
+
 for team, (filename, cal_name, cal_desc) in teams.items():
     team_matches = [m for m in league_matches if m["home"] == team or m["away"] == team]
     generate_ics(team_matches + playoff_matches, filename, cal_name, cal_desc)
